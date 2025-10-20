@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Danh sách sản phẩm</title>
+    <th:block th:replace="~{common/template::library}"></th:block>
+</head>
+<body>
+
+<div class="container mt-4">
+    <h2 class="mb-3">Danh sách khuyến mãi</h2>
+
+
+    <form th:action="@{/promos/search/price}" method="get" class="row g-2 mb-3">
+        <div class="col-md-6">
+            <input type="text" name="price" class="form-control"
+                   th:value="${search}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Tìm kiếm theo giá</button>
+        </div>
+        <div class="col-md-4 text-end">
+            <a th:href="@{/promos/create}" class="btn btn-success">Thêm khuyến mãi</a>
+        </div>
+    </form>
+    <form th:action="@{/promos/search/dateStart}" method="get" class="row g-2 mb-3">
+        <div class="col-md-6">
+            <input type="text" name="dateStart" class="form-control"
+                   th:value="${search}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Tìm kiếm theo ngày bắt đầu</button>
+        </div>
+    </form>
+    <form th:action="@{/promos/search/dateEnd}" method="get" class="row g-2 mb-3">
+        <div class="col-md-6">
+            <input type="text" name="dateEnd" class="form-control"
+                   th:value="${search}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Tìm kiếm theo ngày kết thúc</button>
+        </div>
+    </form>
+
+    <table class="table table-bordered table-hover align-middle text-center">
+        <thead class="table-dark">
+        <tr>
+            <th>Tiêu đề</th>
+            <th>Thời gian bắt đầu</th>
+            <th>Thời gian kết thúc</th>
+            <th>Mức giảm giá</th>
+            <th>Chi tiết</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${promos}">
+            <td th:text="${p.title}"></td>
+            <td th:text="${p.dateStart}"></td>
+            <td th:text="${p.dateEnd}"></td>
+            <td th:text="${p.price}"></td>
+            <td th:text="${p.detail}"></td>
+            <td>
+                <a th:href="@{|/promos/update/${p.id}|}" class="btn btn-warning btn-sm">Sửa</a>
+
+
+                <button type="button"
+                        class="btn btn-danger btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmDeleteModal"
+                        th:attr="data-id=${p.id}, data-name=${p.title}">
+                    Xóa
+                </button>
+            </td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(promos)}">
+            <td colspan="6" class="text-muted">Không có khuyến mãi nào</td>
+        </tr>
+        </tbody>
+    </table>
+
+
+    <p id="message" th:text="${message}"></p>
+
+</div>
+
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmDeleteLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc muốn xóa sản phẩm:
+                <strong id="deleteItemTitle"></strong>
+                (ID: <span id="deleteItemId"></span>)?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <a id="confirmDeleteBtn" class="btn btn-danger">Xóa</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const deleteModal = document.getElementById('confirmDeleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        const title = button.getAttribute('data-title');
+
+        document.getElementById('deleteItemTitle').textContent = title;
+        document.getElementById('deleteItemId').textContent = id;
+
+
+        const deleteLink = document.getElementById('confirmDeleteBtn');
+        deleteLink.setAttribute('href', `/promos/delete/${id}`);
+    });
+
+
+    setTimeout(function () {
+        const m = document.getElementById("message");
+        if (m) m.style.display = "none";
+    }, 3000);
+</script>
+
+</body>
+</html>
